@@ -31,45 +31,32 @@ class BinarySearchTree {
       return undefined;
     } else {
       const nodesNeeded = this.lookup(value, "remove");
+      let side = "left";
       let removeNode = nodesNeeded.removeNode;
       let parentNode = nodesNeeded.parentNode;
       let replacementNode;
 
+
       if (parentNode.right.value === removeNode.value) {
-        if (!removeNode.right && !removeNode.left) {
-          //if it's just a leaf, delete it
-          parentNode.right = null;
-          return "done";
-        } else {
-          //go to the right side and find its successor
-          //remove the bottom-most node to the left of the right?
-          //search through children
-
-          replacementNode = this.findAndRemoveSuccessor('right', parentNode, removeNode);
-        }
-
-      } else {
-        if (!removeNode.right && !removeNode.left) {
-          //if it's just a leaf, delete it
-          parentNode.left = null;
-          return "done";
-        } else {
-          //go to the left side and find its successor
-          //remove the bottom-most node to the left of the right?
-          replacementNode = this.findAndRemoveSuccessor('left', parentNode, removeNode);
-        }
+        side = "right";
       }
+
+      if (!removeNode.right && !removeNode.left) {
+        //if it's just a leaf, delete it
+        parentNode[side] = null;
+        return "done";
+      } else {
+        //go to the correct side and find its successor
+        replacementNode = this.findAndRemoveSuccessor(side, parentNode, removeNode);
+      }
+
 
       if (replacementNode) {
         //inherit its children
         replacementNode.right = removeNode.right;
         replacementNode.left = removeNode.left;
 
-        if (parentNode.right.value === removeNode.value) {
-          parentNode.right = replacementNode;
-        } else {
-          parentNode.left = replacementNode;
-        }
+        parentNode[side] = replacementNode;
       } else {
         return "not found";
       }
@@ -89,33 +76,39 @@ class BinarySearchTree {
     while (!done) {
       let currentLeftNode = currentNode.left;
       let currentRightNode = currentNode.right;
+      let sharedRightCheck = ((currentRightNode) && currentRightNode.value >= removeNode.left.value && currentRightNode.value <= removeNode.right.value);
+      let sharedLeftCheck = ((currentLeftNode) && currentLeftNode.value >= removeNode.left.value && currentLeftNode.value <= removeNode.right.value);
 
+
+      //possible improvement here?
+      // if (!currentNode.left && !currentNode.right) {
+      //   //we've reached a possibility
+
+      // } else {
+
+      // }
+
+
+      //currnode on right side needs to be greater than parent node, greater than remove.left, less than remove.right
       if (side === "right") {
-        if ((currentLeftNode) && (currentLeftNode.value > parentNode.value && currentLeftNode.value <= removeNode.right.value)) {
-          if (!replacementNode || replacementNode.value < currentLeftNode.value) {
-            replacementNode = currentLeftNode;
-          }
+
+        if ((sharedRightCheck) && (currentRightNode.value > parentNode.value)) {
+          replacementNode = currentRightNode;
         }
 
-        if ((currentRightNode) && (currentRightNode.value > parentNode.value && currentRightNode.value >= removeNode.right.value)) {
-          if (!replacementNode || replacementNode.value > currentRightNode.value) {
-            replacementNode = currentRightNode;
-          }
+        //left takes precedence because it's a lesser value
+        if ((sharedLeftCheck) && (currentLeftNode.value > parentNode.value)) {
+          replacementNode = currentLeftNode;
         }
       } else {
-        if ((currentLeftNode) && (currentLeftNode.value < parentNode.value && currentLeftNode.value >= removeNode.right.value)) {
+        //currnode on left side needs to be less than parent, greater than remove.left, less than remove.right
 
-          if (!replacementNode || replacementNode.value > currentLeftNode.value) {
-            replacementNode = currentLeftNode;
-          }
-
+        if ((sharedRightCheck) && currentRightNode.value < parentNode.value) {
+          replacementNode = currentRightNode;
         }
 
-        if ((currentRightNode) && (currentRightNode.value < parentNode.value && currentRightNode.value >= removeNode.right.value)) {
-
-          if (!replacementNode || replacementNode.value > currentRightNode.value) {
-            replacementNode = currentRightNode;
-          }
+        if ((sharedLeftCheck) && currentLeftNode.value < parentNode.value) {
+          replacementNode = currentLeftNode;
         }
       }
 
@@ -130,7 +123,7 @@ class BinarySearchTree {
       }
     }
 
-    this.lookup(replacementNode.value, "removeLeaf")
+    this.lookup(replacementNode.value, "removeLeaf");
 
     return replacementNode;
   }
@@ -174,15 +167,6 @@ class BinarySearchTree {
           }
         } else {
           //value is equal
-
-          if (type === "removeLeaf") {
-            if (parentNode.right.value === currentNode.value) {
-              delete parentNode.right;
-            } else {
-              delete parentNode.left;
-            }
-          }
-
           done = true;
         }
       }
@@ -194,11 +178,18 @@ class BinarySearchTree {
           removeNode: currentNode,
           parentNode: parentNode
         }
+      } else if (type === "removeLeaf") {
+        if (parentNode.right.value === currentNode.value) {
+          parentNode.right = null;
+        } else {
+          parentNode.left = null;
+        }
       } else {
         return currentNode;
       }
     }
   }
+  // remove
 }
 
 const tree = new BinarySearchTree();
@@ -217,11 +208,11 @@ tree.insert(160)
 tree.insert(16)
 // JSON.stringify(traverse(tree.root))
 // tree.lookup(20)
-tree.remove(6)
-//6's successor is 5
-//20's successor is 160
+tree.remove(4)
+//6's and 4's successor is 5
+//20's and 170's successor is 160
 
-JSON.stringify(tree.root)
+JSON.stringify(traverse(tree.root))
 
 //     9
 //  4     20
