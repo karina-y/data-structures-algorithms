@@ -31,35 +31,41 @@ class BinarySearchTree {
       return undefined;
     } else {
       const nodesNeeded = this.lookup(value, "remove");
-      let side = "left";
-      let removeNode = nodesNeeded.removeNode;
-      let parentNode = nodesNeeded.parentNode;
-      let replacementNode;
+
+      if (nodesNeeded) {
+        let side = "left";
+        let removeNode = nodesNeeded.removeNode;
+        let parentNode = nodesNeeded.parentNode;
+        let replacementNode;
 
 
-      if (parentNode.right.value === removeNode.value) {
-        side = "right";
-      }
+        if (parentNode.right.value === removeNode.value) {
+          side = "right";
+        }
 
-      if (!removeNode.right && !removeNode.left) {
-        //if it's just a leaf, delete it
-        parentNode[side] = null;
-        return "done";
+        if (!removeNode.right && !removeNode.left) {
+          //if it's just a leaf, delete it
+          parentNode[side] = null;
+          return "done";
+        } else {
+          //go to the correct side and find its successor
+          replacementNode = this.findAndRemoveSuccessor(side, parentNode, removeNode);
+        }
+
+
+        if (replacementNode) {
+          //inherit its children
+          replacementNode.right = removeNode.right;
+          replacementNode.left = removeNode.left;
+
+          parentNode[side] = replacementNode;
+        } else {
+          return "not found";
+        }
       } else {
-        //go to the correct side and find its successor
-        replacementNode = this.findAndRemoveSuccessor(side, parentNode, removeNode);
+        return "node doesn't exist";
       }
 
-
-      if (replacementNode) {
-        //inherit its children
-        replacementNode.right = removeNode.right;
-        replacementNode.left = removeNode.left;
-
-        parentNode[side] = replacementNode;
-      } else {
-        return "not found";
-      }
 
     }
   }
@@ -174,10 +180,15 @@ class BinarySearchTree {
       if (type === "insert") {
         return newNodeLocation;
       } else if (type === "remove") {
-        return {
-          removeNode: currentNode,
-          parentNode: parentNode
+        if (value === currentNode.value) {
+          return {
+            removeNode: currentNode,
+            parentNode: parentNode
+          }
+        } else {
+          return undefined;
         }
+
       } else if (type === "removeLeaf") {
         if (parentNode.right.value === currentNode.value) {
           parentNode.right = null;
@@ -208,7 +219,7 @@ tree.insert(160)
 tree.insert(16)
 // JSON.stringify(traverse(tree.root))
 // tree.lookup(20)
-tree.remove(4)
+tree.remove(49)
 //6's and 4's successor is 5
 //20's and 170's successor is 160
 
