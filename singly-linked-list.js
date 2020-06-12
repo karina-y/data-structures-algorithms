@@ -1,5 +1,5 @@
 
-class NewNode {
+class Node {
   constructor(value) {
     this.value = value;
     this.next = null;
@@ -8,7 +8,7 @@ class NewNode {
 
 class LinkedList {
   constructor(value) {
-    const newNode = new NewNode(value);
+    const newNode = new Node(value);
     this.head = newNode;
     this.tail = this.head;
     this.length = 1;
@@ -20,7 +20,7 @@ class LinkedList {
       return undefined;
     } else {
       const currentHead = this.head;
-      const newNode = new NewNode(value);
+      const newNode = new Node(value);
       newNode.next = currentHead;
       this.head = newNode;
 
@@ -33,7 +33,7 @@ class LinkedList {
       return undefined;
     } else {
       const currentTail = this.tail;
-      const newNode = new NewNode(value);
+      const newNode = new Node(value);
       currentTail.next = newNode;
       this.tail = newNode;
 
@@ -47,7 +47,7 @@ class LinkedList {
     } else {
       let leadingNode = this.getNode(index - 1);
       let followingNode = leadingNode.next;
-      let newNode = new NewNode(value);
+      let newNode = new Node(value);
 
       newNode.next = followingNode;
       leadingNode.next = newNode;
